@@ -68,10 +68,6 @@
                     </button>
                 </form>
 
-                <div class="login-hint">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Demo: <strong>admin</strong> / <strong>admin123</strong></span>
-                </div>
             </div>
         </div>
     </div>

@@ -75,20 +75,19 @@ class AuthController extends Controller
         // Clear the session cookie
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params['path'],
-                $params['domain'],
-                $params['secure'],
-                $params['httponly']
-            );
+            setcookie(session_name(), '', [
+                'expires'  => time() - 42000,
+                'path'     => $params['path'],
+                'domain'   => $params['domain'],
+                'secure'   => $params['secure'],
+                'httponly'  => $params['httponly'],
+                'samesite' => $params['samesite'] ?? 'Strict',
+            ]);
         }
 
         session_destroy();
 
-        \Core\Logger::info('User logged out', ['user_id' => $userId]);
+        // Redirect immediately — do not risk logging after session is gone
         header('Location: ' . (defined('BASE_URL') ? BASE_URL : '') . '/login');
         exit;
     }

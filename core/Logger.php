@@ -59,7 +59,7 @@ class Logger
         }
 
         if (!is_dir(self::$logDir)) {
-            mkdir(self::$logDir, 0755, true);
+            @mkdir(self::$logDir, 0755, true);
         }
 
         $logFile = self::$logDir . '/app.log';
@@ -70,6 +70,6 @@ class Logger
 
         $line = "[{$timestamp}] [{$level}] [IP:{$ip}] [User:{$userId}] {$message}{$contextStr}" . PHP_EOL;
 
-        file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
+        @file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
     }
 }

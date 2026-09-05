@@ -32,7 +32,9 @@ set_error_handler(function (int $errno, string $errstr, string $errfile, int $er
         E_ERROR   => 'ERROR',
     ];
     $level = $errorMap[$errno] ?? 'ERROR';
-    \Core\Logger::error("[{$level}] {$errstr}", [
+
+    // Use @ to suppress further errors from Logger itself
+    @\Core\Logger::error("[{$level}] {$errstr}", [
         'file' => $errfile,
         'line' => $errline,
     ]);
@@ -47,7 +49,7 @@ set_error_handler(function (int $errno, string $errstr, string $errfile, int $er
 });
 
 set_exception_handler(function (\Throwable $e) {
-    \Core\Logger::error('Uncaught exception: ' . $e->getMessage(), [
+    @\Core\Logger::error('Uncaught exception: ' . $e->getMessage(), [
         'file'  => $e->getFile(),
         'line'  => $e->getLine(),
         'trace' => $e->getTraceAsString(),
@@ -61,7 +63,7 @@ set_exception_handler(function (\Throwable $e) {
 register_shutdown_function(function () {
     $error = error_get_last();
     if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
-        \Core\Logger::error('Fatal error: ' . $error['message'], [
+        @\Core\Logger::error('Fatal error: ' . $error['message'], [
             'file' => $error['file'],
             'line' => $error['line'],
         ]);
