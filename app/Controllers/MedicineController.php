@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use Core\Controller;
-use Core\Middleware;
 use Core\View;
 use App\Models\Medicine;
 use App\Models\Category;
@@ -28,8 +27,6 @@ class MedicineController extends Controller
      */
     public function index(): void
     {
-        Middleware::auth();
-
         $search = trim($this->query('search', ''));
         $categoryFilter = (int) $this->query('category', 0);
         $limit = 10;
@@ -53,8 +50,6 @@ class MedicineController extends Controller
      */
     public function create(): void
     {
-        Middleware::auth();
-
         $categories = $this->categoryModel->getAll();
         $suppliers = $this->supplierModel->getAll();
         $error = $this->getFlash('danger');
@@ -67,8 +62,6 @@ class MedicineController extends Controller
      */
     public function store(): void
     {
-        Middleware::auth();
-
         if (!$this->isPost()) {
             $this->redirect('/medicines/create');
         }
@@ -89,7 +82,6 @@ class MedicineController extends Controller
         $unit = trim($this->input('unit', 'piece'));
         $reorderLevel = (int) $this->input('reorder_level', 10);
 
-        // Validate
         if (empty($name) || empty($batchNo) || empty($expiryDate)) {
             $this->setFlash('danger', 'Please fill in all required fields.');
             $this->redirect('/medicines/create');
@@ -133,8 +125,6 @@ class MedicineController extends Controller
      */
     public function show(string $id): void
     {
-        Middleware::auth();
-
         $medicine = $this->medicineModel->findWithCategory((int) $id);
         if (!$medicine) {
             $this->setFlash('danger', 'Medicine not found.');
@@ -149,8 +139,6 @@ class MedicineController extends Controller
      */
     public function edit(string $id): void
     {
-        Middleware::auth();
-
         $medicine = $this->medicineModel->find((int) $id);
         if (!$medicine) {
             $this->setFlash('danger', 'Medicine not found.');
@@ -169,8 +157,6 @@ class MedicineController extends Controller
      */
     public function update(string $id): void
     {
-        Middleware::auth();
-
         if (!$this->isPost()) {
             $this->redirect("/medicines/{$id}/edit");
         }
@@ -219,8 +205,6 @@ class MedicineController extends Controller
      */
     public function destroy(string $id): void
     {
-        Middleware::admin();
-
         if (!$this->isPost()) {
             $this->redirect('/medicines');
         }
@@ -230,7 +214,6 @@ class MedicineController extends Controller
             $this->redirect('/medicines');
         }
 
-        // Soft delete: mark as inactive instead of deleting
         $this->medicineModel->update((int) $id, ['is_active' => 0]);
         $this->setFlash('success', 'Medicine removed from inventory.');
         $this->redirect('/medicines');

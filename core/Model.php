@@ -11,6 +11,8 @@ abstract class Model
     protected Database $db;
     protected string $table = '';
     protected string $primaryKey = 'id';
+    protected array $allowedColumns = [];
+    protected array $allowedDirections = ['ASC', 'DESC'];
 
     public function __construct()
     {
@@ -49,7 +51,14 @@ abstract class Model
         }
 
         if ($orderBy) {
-            $sql .= " ORDER BY {$orderBy} {$direction}";
+            if (!empty($this->allowedColumns) && !in_array($orderBy, $this->allowedColumns, true)) {
+                throw new \InvalidArgumentException("Invalid order by column: {$orderBy}");
+            }
+            $direction = strtoupper($direction);
+            if (!in_array($direction, $this->allowedDirections, true)) {
+                throw new \InvalidArgumentException("Invalid order direction: {$direction}");
+            }
+            $sql .= " ORDER BY `{$orderBy}` {$direction}";
         }
 
         return $this->db->fetchAll($sql, $params, $types);

@@ -24,8 +24,64 @@ spl_autoload_register(function (string $class) {
     }
 });
 
-// Session
+// Error and exception handlers
+set_error_handler(function (int $errno, string $errstr, string $errfile, int $errline) {
+    $errorMap = [
+        E_WARNING => 'WARNING',
+        E_NOTICE  => 'NOTICE',
+        E_ERROR   => 'ERROR',
+    ];
+    $level = $errorMap[$errno] ?? 'ERROR';
+    \Core\Logger::error("[{$level}] {$errstr}", [
+        'file' => $errfile,
+        'line' => $errline,
+    ]);
+
+    if ($errno === E_ERROR || $errno === E_USER_ERROR) {
+        http_response_code(500);
+        require __DIR__ . '/../app/Views/errors/500.php';
+        exit;
+    }
+
+    return true;
+});
+
+set_exception_handler(function (\Throwable $e) {
+    \Core\Logger::error('Uncaught exception: ' . $e->getMessage(), [
+        'file'  => $e->getFile(),
+        'line'  => $e->getLine(),
+        'trace' => $e->getTraceAsString(),
+    ]);
+
+    http_response_code(500);
+    require __DIR__ . '/../app/Views/errors/500.php';
+    exit;
+});
+
+register_shutdown_function(function () {
+    $error = error_get_last();
+    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+        \Core\Logger::error('Fatal error: ' . $error['message'], [
+            'file' => $error['file'],
+            'line' => $error['line'],
+        ]);
+
+        http_response_code(500);
+        require __DIR__ . '/../app/Views/errors/500.php';
+        exit;
+    }
+});
+
+// Session with secure cookie settings
 if (session_status() === PHP_SESSION_NONE) {
+    $isProduction = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'httponly'  => true,
+        'secure'   => $isProduction,
+        'samesite' => 'Strict',
+    ]);
     session_start();
 }
 

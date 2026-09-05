@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use Core\Controller;
-use Core\Middleware;
 use App\Models\Setting;
 
 class SettingsController extends Controller
@@ -21,8 +20,6 @@ class SettingsController extends Controller
      */
     public function index(): void
     {
-        Middleware::admin();
-
         $settings = $this->settingModel->getAll();
         $flashSuccess = $this->getFlash('success');
         $flashDanger = $this->getFlash('danger');
@@ -35,8 +32,6 @@ class SettingsController extends Controller
      */
     public function update(): void
     {
-        Middleware::admin();
-
         if (!$this->isPost()) {
             $this->redirect('/settings');
         }
@@ -55,6 +50,7 @@ class SettingsController extends Controller
         $this->settingModel->set('low_stock_threshold', (string) $lowStockThreshold);
         $this->settingModel->set('expiry_alert_days', (string) $expiryAlertDays);
 
+        \Core\Logger::info('Settings updated', ['low_stock' => $lowStockThreshold, 'expiry_days' => $expiryAlertDays]);
         $this->setFlash('success', 'Settings updated successfully!');
         $this->redirect('/settings');
     }

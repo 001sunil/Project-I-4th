@@ -6,6 +6,7 @@ class Router
 {
     private array $routes = [];
     private string $prefix = '';
+    private array $pendingMiddleware = [];
 
     /**
      * Register a GET route.
@@ -45,6 +46,15 @@ class Router
     }
 
     /**
+     * Attach middleware to the next registered route(s).
+     */
+    public function middleware(string ...$middleware): self
+    {
+        $this->pendingMiddleware = $middleware;
+        return $this;
+    }
+
+    /**
      * Dispatch the current request to the matching route.
      */
     public function dispatch(string $method, string $uri): void
@@ -60,6 +70,13 @@ class Router
 
             $pattern = $this->buildPattern($route['path']);
             if (preg_match($pattern, $path, $matches)) {
+                // Run middleware before controller
+                if (!empty($route['middleware'])) {
+                    foreach ($route['middleware'] as $mw) {
+                        $this->runMiddleware($mw);
+                    }
+                }
+
                 // Filter out numeric keys
                 $params = array_filter($matches, fn($k) => !is_int($k), ARRAY_FILTER_USE_KEY);
                 $this->callHandler($route['handler'], $params);
@@ -75,10 +92,12 @@ class Router
     {
         $fullPath = $this->prefix . $path;
         $this->routes[] = [
-            'method'  => $method,
-            'path'    => $fullPath,
-            'handler' => $handler,
+            'method'     => $method,
+            'path'       => $fullPath,
+            'handler'    => $handler,
+            'middleware'  => $this->pendingMiddleware,
         ];
+        $this->pendingMiddleware = [];
     }
 
     /**
@@ -86,11 +105,35 @@ class Router
      */
     private function buildPattern(string $path): string
     {
-        // Escape regex metacharacters in literal parts, then replace {param} with named capture groups
         $escaped = preg_quote($path, '#');
-        // preg_quote escapes { and }, so we need to unescape our {param} placeholders
         $pattern = preg_replace('/\\\{(\w+)\\\}/', '(?P<$1>[^/]+)', $escaped);
         return '#^' . $pattern . '$#';
+    }
+
+    /**
+     * Run a middleware by name.
+     */
+    private function runMiddleware(string $name): void
+    {
+        $map = [
+            'auth'   => [Middleware::class, 'auth'],
+            'admin'  => [Middleware::class, 'admin'],
+            'guest'  => [Middleware::class, 'guest'],
+        ];
+
+        // Allow custom role middleware like "role:staff"
+        if (str_starts_with($name, 'role:')) {
+            $role = substr($name, 5);
+            Middleware::role($role);
+            return;
+        }
+
+        if (isset($map[$name])) {
+            call_user_func($map[$name]);
+            return;
+        }
+
+        throw new \RuntimeException("Unknown middleware: {$name}");
     }
 
     /**

@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use Core\Controller;
-use Core\Middleware;
 use App\Models\Medicine;
 use App\Models\StockAdjustment;
 
@@ -24,8 +23,6 @@ class StockAdjustmentController extends Controller
      */
     public function index(): void
     {
-        Middleware::auth();
-
         $adjustments = $this->adjustmentModel->getAllWithMedicine();
         $flashSuccess = $this->getFlash('success');
         $flashDanger = $this->getFlash('danger');
@@ -38,8 +35,6 @@ class StockAdjustmentController extends Controller
      */
     public function create(): void
     {
-        Middleware::auth();
-
         $medicines = $this->medicineModel->getActive();
         $error = $this->getFlash('danger');
 
@@ -51,8 +46,6 @@ class StockAdjustmentController extends Controller
      */
     public function store(): void
     {
-        Middleware::auth();
-
         if (!$this->isPost()) {
             $this->redirect('/stock-adjustments/create');
         }
@@ -88,14 +81,11 @@ class StockAdjustmentController extends Controller
             $this->redirect('/stock-adjustments/create');
         }
 
-        // Wrap adjustment record + stock update in a transaction
         $this->db->beginTransaction();
         try {
-            // Create adjustment record with user ID for audit trail
             $userId = (int) ($_SESSION['user_id'] ?? 0);
             $this->adjustmentModel->createAdjustment($medicineId, $quantityChange, $reason, $note, $userId);
 
-            // Update medicine stock
             $stockUpdated = $this->medicineModel->adjustStock($medicineId, $quantityChange);
             if (!$stockUpdated) {
                 throw new \RuntimeException('Failed to adjust stock.');
@@ -108,6 +98,8 @@ class StockAdjustmentController extends Controller
             $this->redirect('/stock-adjustments/create');
         }
 
+        \Core\Logger::info('Stock adjustment recorded', ['medicine_id' => $medicineId, 'change' => $quantityChange, 'reason' => $reason]);
+        \Core\AuditLog::log('stock_adjustment', $userId, null, ['medicine_id' => $medicineId, 'change' => $quantityChange, 'reason' => $reason]);
         $this->setFlash('success', 'Stock adjustment recorded successfully.');
         $this->redirect('/stock-adjustments');
     }

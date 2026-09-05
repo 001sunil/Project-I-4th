@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use Core\Controller;
-use Core\Middleware;
 use App\Models\Medicine;
 use App\Models\Sale;
 use App\Models\PrescriptionDetail;
@@ -27,8 +26,6 @@ class SaleController extends Controller
      */
     public function index(): void
     {
-        Middleware::auth();
-
         $search = trim($this->query('search', ''));
         $limit = 20;
         $page = max(1, (int) $this->query('page', 1));
@@ -50,8 +47,6 @@ class SaleController extends Controller
      */
     public function create(): void
     {
-        Middleware::auth();
-
         $medicines = $this->medicineModel->getActive();
         $error = $this->getFlash('danger');
 
@@ -63,8 +58,6 @@ class SaleController extends Controller
      */
     public function store(): void
     {
-        Middleware::auth();
-
         if (!$this->isPost()) {
             $this->redirect('/sales/create');
         }
@@ -78,7 +71,6 @@ class SaleController extends Controller
         $quantitySold = (int) $this->input('quantity_sold', 0);
         $paymentMethod = $this->input('payment_method', 'cash');
 
-        // Get medicine details
         $medicine = $this->medicineModel->find($medicineId);
         if (!$medicine) {
             $this->setFlash('danger', 'Medicine not found.');
@@ -100,10 +92,8 @@ class SaleController extends Controller
         $saleNumber = $this->saleModel->generateSaleNumber();
         $userId = (int) ($_SESSION['user_id'] ?? null);
 
-        // Wrap sale creation + stock decrease in a transaction for data consistency
         $this->db->beginTransaction();
         try {
-            // Create the sale
             $saleId = $this->saleModel->create([
                 'sale_number'     => $saleNumber,
                 'medicine_id'     => $medicineId,
@@ -114,7 +104,6 @@ class SaleController extends Controller
                 'created_by'      => $userId,
             ]);
 
-            // Decrease stock
             $stockDecreased = $this->medicineModel->decreaseStock($medicineId, $quantitySold);
             if (!$stockDecreased) {
                 throw new \RuntimeException('Failed to decrease stock. Insufficient quantity.');
@@ -127,7 +116,6 @@ class SaleController extends Controller
             $this->redirect('/sales/create');
         }
 
-        // If prescription required, save prescription details
         if ($medicine['requires_prescription']) {
             $doctorName = trim($this->input('doctor_name', ''));
             $nmcNumber = trim($this->input('nmc_number', ''));
@@ -149,6 +137,8 @@ class SaleController extends Controller
             }
         }
 
+        \Core\Logger::info('Sale recorded', ['sale_number' => $saleNumber, 'total' => $totalAmount]);
+        \Core\AuditLog::log('sale_created', $userId, null, ['sale_number' => $saleNumber, 'total' => $totalAmount]);
         $this->setFlash('success', "Sale recorded! ({$saleNumber})");
         $this->redirect('/sales');
     }
@@ -158,8 +148,6 @@ class SaleController extends Controller
      */
     public function export(): void
     {
-        Middleware::auth();
-
         $sales = $this->saleModel->getFiltered('', 10000, 0);
 
         header('Content-Type: text/csv');

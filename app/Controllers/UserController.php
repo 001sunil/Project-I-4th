@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use Core\Controller;
-use Core\Middleware;
 use App\Models\User;
 
 class UserController extends Controller
@@ -21,8 +20,6 @@ class UserController extends Controller
      */
     public function index(): void
     {
-        Middleware::admin();
-
         $users = $this->userModel->getAllUsers();
         $flashSuccess = $this->getFlash('success');
         $flashDanger = $this->getFlash('danger');
@@ -35,8 +32,6 @@ class UserController extends Controller
      */
     public function create(): void
     {
-        Middleware::admin();
-
         $error = $this->getFlash('danger');
         require __DIR__ . '/../Views/users/create.php';
     }
@@ -46,8 +41,6 @@ class UserController extends Controller
      */
     public function store(): void
     {
-        Middleware::admin();
-
         if (!$this->isPost()) {
             $this->redirect('/users/create');
         }
@@ -91,6 +84,8 @@ class UserController extends Controller
             'avatar'    => $avatar,
         ]);
 
+        \Core\Logger::info('User created', ['username' => $username, 'role' => $role]);
+        \Core\AuditLog::log('user_created', (int) ($_SESSION['user_id'] ?? 0), null, ['username' => $username, 'role' => $role]);
         $this->setFlash('success', 'User created successfully!');
         $this->redirect('/users');
     }
@@ -100,8 +95,6 @@ class UserController extends Controller
      */
     public function edit(string $id): void
     {
-        Middleware::admin();
-
         $user = $this->userModel->find((int) $id);
         if (!$user) {
             $this->setFlash('danger', 'User not found.');
@@ -117,8 +110,6 @@ class UserController extends Controller
      */
     public function update(string $id): void
     {
-        Middleware::admin();
-
         if (!$this->isPost()) {
             $this->redirect("/users/{$id}/edit");
         }
@@ -155,10 +146,8 @@ class UserController extends Controller
             $updateData['password'] = $password;
         }
 
-        // Handle avatar upload
         $avatar = $this->handleAvatarUpload();
         if ($avatar) {
-            // Delete old avatar
             $existing = $this->userModel->find((int) $id);
             if ($existing && !empty($existing['avatar'])) {
                 $oldPath = __DIR__ . '/../../uploads/avatars/' . $existing['avatar'];
@@ -171,6 +160,8 @@ class UserController extends Controller
 
         $this->userModel->updateUser((int) $id, $updateData);
 
+        \Core\Logger::info('User updated', ['user_id' => $id]);
+        \Core\AuditLog::log('user_updated', (int) ($_SESSION['user_id'] ?? 0), null, ['user_id' => $id]);
         $this->setFlash('success', 'User updated successfully!');
         $this->redirect('/users');
     }
@@ -180,8 +171,6 @@ class UserController extends Controller
      */
     public function destroy(string $id): void
     {
-        Middleware::admin();
-
         if (!$this->isPost()) {
             $this->redirect('/users');
         }
@@ -191,13 +180,11 @@ class UserController extends Controller
             $this->redirect('/users');
         }
 
-        // Prevent self-deletion
         if ((int) $id === (int) $_SESSION['user_id']) {
             $this->setFlash('danger', 'You cannot delete your own account.');
             $this->redirect('/users');
         }
 
-        // Delete avatar file
         $user = $this->userModel->find((int) $id);
         if ($user && !empty($user['avatar'])) {
             $avatarPath = __DIR__ . '/../../uploads/avatars/' . $user['avatar'];
@@ -207,6 +194,8 @@ class UserController extends Controller
         }
 
         $this->userModel->delete((int) $id);
+        \Core\Logger::info('User deleted', ['user_id' => $id]);
+        \Core\AuditLog::log('user_deleted', (int) ($_SESSION['user_id'] ?? 0), ['user_id' => $id], null);
         $this->setFlash('success', 'User deleted successfully.');
         $this->redirect('/users');
     }
@@ -222,13 +211,11 @@ class UserController extends Controller
 
         $file = $_FILES['avatar'];
 
-        // Validate file size (max 2MB)
         if ($file['size'] > 2 * 1024 * 1024) {
             $this->setFlash('danger', 'Avatar must be less than 2MB.');
             $this->redirect($_SERVER['REQUEST_URI']);
         }
 
-        // Validate MIME type
         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mime = finfo_file($finfo, $file['tmp_name']);
@@ -239,7 +226,6 @@ class UserController extends Controller
             $this->redirect($_SERVER['REQUEST_URI']);
         }
 
-        // Generate unique filename
         $ext = match($mime) {
             'image/jpeg' => 'jpg',
             'image/png'  => 'png',
@@ -252,7 +238,7 @@ class UserController extends Controller
         $uploadDir = __DIR__ . '/../../uploads/avatars/';
 
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
+            mkdir($uploadDir, 0755, true);
         }
 
         if (move_uploaded_file($file['tmp_name'], $uploadDir . $filename)) {

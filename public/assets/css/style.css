@@ -147,6 +147,9 @@ a { text-decoration: none; color: inherit; }
 .sidebar-menu li a.active .icon { opacity: 1; }
 .sidebar-menu li a.logout-link { color: #f87171; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; }
 .sidebar-menu li a.logout-link:hover { background: rgba(239,68,68,0.1); color: #fca5a5; }
+.sidebar-menu .logout-form { margin: 0; padding: 0; }
+.sidebar-menu .logout-form .logout-link { display: flex; align-items: center; width: 100%; padding: 10px 16px; background: none; border: none; color: #f87171; font-size: 0.9rem; cursor: pointer; font-family: inherit; text-decoration: none; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; border-radius: var(--radius-sm); transition: all var(--transition); }
+.sidebar-menu .logout-form .logout-link:hover { background: rgba(239,68,68,0.1); color: #fca5a5; }
 
 .sidebar-footer {
     padding: 16px 20px;

@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use Core\Controller;
-use Core\Middleware;
 use App\Models\Medicine;
 use App\Models\Sale;
 use App\Models\Setting;
@@ -15,8 +14,6 @@ class ReportController extends Controller
      */
     public function lowStock(): void
     {
-        Middleware::auth();
-
         $medicineModel = new Medicine();
         $lowStockMedicines = $medicineModel->getLowStock();
 
@@ -28,8 +25,6 @@ class ReportController extends Controller
      */
     public function expiryAlerts(): void
     {
-        Middleware::auth();
-
         $settingModel = new Setting();
         $medicineModel = new Medicine();
 
@@ -44,8 +39,6 @@ class ReportController extends Controller
      */
     public function prescriptionAudit(): void
     {
-        Middleware::auth();
-
         $saleModel = new Sale();
         $prescriptionSales = $saleModel->getPrescriptionSales();
 

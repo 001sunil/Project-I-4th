@@ -44,7 +44,12 @@
             <li><a href="<?php echo \Core\View::url('/settings'); ?>" class="<?php echo \Core\View::currentPage() === 'settings' ? 'active' : ''; ?>"><span class="icon"><i class="fas fa-cog"></i></span> Settings</a></li>
             <?php endif; ?>
 
-            <li><a href="<?php echo \Core\View::url('/logout'); ?>" class="logout-link"><span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout</a></li>
+            <li>
+                <form method="POST" action="<?php echo \Core\View::url('/logout'); ?>" class="logout-form">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
+                    <button type="submit" class="logout-link"><span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout</button>
+                </form>
+            </li>
         </ul>
         <div class="sidebar-footer">
             <?php

@@ -1,0 +1,34 @@
+<?php
+
+namespace Core;
+
+/**
+ * Audit log helper — writes to the audit_log table.
+ */
+class AuditLog
+{
+    /**
+     * Log an audit event to the database.
+     */
+    public static function log(
+        string $action,
+        int $userId = 0,
+        ?array $oldValues = null,
+        ?array $newValues = null
+    ): void {
+        $db = Database::getInstance();
+
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+
+        $sql = "INSERT INTO audit_log (action, user_id, old_values, new_values, ip_address, created_at)
+                VALUES (?, ?, ?, ?, ?, NOW())";
+
+        $db->query($sql, [
+            $action,
+            $userId,
+            $oldValues ? json_encode($oldValues) : null,
+            $newValues ? json_encode($newValues) : null,
+            $ipAddress,
+        ], 'sissS');
+    }
+}

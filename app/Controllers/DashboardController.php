@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use Core\Controller;
-use Core\Middleware;
 use App\Models\Medicine;
 use App\Models\Sale;
 use App\Models\Setting;
@@ -12,8 +11,6 @@ class DashboardController extends Controller
 {
     public function index(): void
     {
-        Middleware::auth();
-
         $medicineModel = new Medicine();
         $saleModel = new Sale();
         $settingModel = new Setting();
