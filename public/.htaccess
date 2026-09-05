@@ -1,0 +1,10 @@
+# ============================================================
+# .htaccess — Route all requests through public/index.php
+# ============================================================
+
+RewriteEngine On
+
+# If the requested file or directory doesn't exist, route to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
