@@ -67,7 +67,19 @@ class AuthController extends Controller
      */
     public function logout(): void
     {
+        if (!$this->isPost()) {
+            $this->redirect('/dashboard');
+        }
+
+        if (!$this->validateCsrf($this->input('csrf_token', ''))) {
+            $this->redirect('/dashboard');
+        }
+
         $userId = $_SESSION['user_id'] ?? null;
+        $username = $_SESSION['username'] ?? 'unknown';
+
+        \Core\Logger::info('User logged out', ['user_id' => $userId, 'username' => $username]);
+        \Core\AuditLog::log('logout', $userId ?? 0, null, ['username' => $username]);
 
         // Unset all session variables
         $_SESSION = [];
