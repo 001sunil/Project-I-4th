@@ -78,9 +78,6 @@ class AuthController extends Controller
         $userId = $_SESSION['user_id'] ?? null;
         $username = $_SESSION['username'] ?? 'unknown';
 
-        \Core\Logger::info('User logged out', ['user_id' => $userId, 'username' => $username]);
-        \Core\AuditLog::log('logout', $userId ?? 0, null, ['username' => $username]);
-
         // Unset all session variables
         $_SESSION = [];
 
@@ -99,7 +96,6 @@ class AuthController extends Controller
 
         session_destroy();
 
-        // Redirect immediately — do not risk logging after session is gone
         header('Location: ' . (defined('BASE_URL') ? BASE_URL : '') . '/login');
         exit;
     }

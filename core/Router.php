@@ -6,7 +6,6 @@ class Router
 {
     private array $routes = [];
     private string $prefix = '';
-    private array $pendingMiddleware = [];
 
     /**
      * Register a GET route.
@@ -46,11 +45,14 @@ class Router
     }
 
     /**
-     * Attach middleware to the next registered route(s).
+     * Attach middleware to the last registered route.
      */
     public function middleware(string ...$middleware): self
     {
-        $this->pendingMiddleware = $middleware;
+        if (!empty($this->routes)) {
+            $lastIndex = array_key_last($this->routes);
+            $this->routes[$lastIndex]['middleware'] = $middleware;
+        }
         return $this;
     }
 
@@ -95,9 +97,8 @@ class Router
             'method'     => $method,
             'path'       => $fullPath,
             'handler'    => $handler,
-            'middleware'  => $this->pendingMiddleware,
+            'middleware'  => [],
         ];
-        $this->pendingMiddleware = [];
     }
 
     /**
