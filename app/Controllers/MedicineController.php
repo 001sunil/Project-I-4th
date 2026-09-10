@@ -102,6 +102,21 @@ class MedicineController extends Controller
             $this->redirect('/medicines/create');
         }
 
+        if (strlen($batchNo) > 50) {
+            $this->setFlash('danger', 'Batch number must be 50 characters or fewer.');
+            $this->redirect('/medicines/create');
+        }
+
+        if (strlen($name) > 150) {
+            $this->setFlash('danger', 'Medicine name must be 150 characters or fewer.');
+            $this->redirect('/medicines/create');
+        }
+
+        if ($reorderLevel < 0) {
+            $this->setFlash('danger', 'Reorder level cannot be negative.');
+            $this->redirect('/medicines/create');
+        }
+
         $id = $this->medicineModel->create([
             'name'                    => $name,
             'category_id'             => $categoryId,
@@ -113,7 +128,7 @@ class MedicineController extends Controller
             'price'                   => $price,
             'requires_prescription'   => $requiresPrescription,
             'reorder_level'           => $reorderLevel,
-            'created_by'              => (int) ($_SESSION['user_id'] ?? null),
+            'created_by'              => $_SESSION['user_id'] ?? null,
         ]);
 
         $this->setFlash('success', "Medicine added successfully! (ID: {$id})");
@@ -182,6 +197,36 @@ class MedicineController extends Controller
             $this->redirect("/medicines/{$id}/edit");
         }
 
+        if ($categoryId <= 0 || $supplierId <= 0) {
+            $this->setFlash('danger', 'Please select a valid category and supplier.');
+            $this->redirect("/medicines/{$id}/edit");
+        }
+
+        if ($quantity < 0) {
+            $this->setFlash('danger', 'Quantity cannot be negative.');
+            $this->redirect("/medicines/{$id}/edit");
+        }
+
+        if ($price <= 0) {
+            $this->setFlash('danger', 'Price must be greater than 0.');
+            $this->redirect("/medicines/{$id}/edit");
+        }
+
+        if (strlen($batchNo) > 50) {
+            $this->setFlash('danger', 'Batch number must be 50 characters or fewer.');
+            $this->redirect("/medicines/{$id}/edit");
+        }
+
+        if (strlen($name) > 150) {
+            $this->setFlash('danger', 'Medicine name must be 150 characters or fewer.');
+            $this->redirect("/medicines/{$id}/edit");
+        }
+
+        if ($reorderLevel < 0) {
+            $this->setFlash('danger', 'Reorder level cannot be negative.');
+            $this->redirect("/medicines/{$id}/edit");
+        }
+
         $this->medicineModel->update((int) $id, [
             'name'                    => $name,
             'category_id'             => $categoryId,
@@ -193,7 +238,7 @@ class MedicineController extends Controller
             'price'                   => $price,
             'requires_prescription'   => $requiresPrescription,
             'reorder_level'           => $reorderLevel,
-            'updated_by'              => (int) ($_SESSION['user_id'] ?? null),
+            'updated_by'              => $_SESSION['user_id'] ?? null,
         ]);
 
         $this->setFlash('success', 'Medicine updated successfully!');
@@ -211,6 +256,12 @@ class MedicineController extends Controller
 
         if (!$this->validateCsrf($this->input('csrf_token', ''))) {
             $this->setFlash('danger', 'Invalid request.');
+            $this->redirect('/medicines');
+        }
+
+        $medicine = $this->medicineModel->find((int) $id);
+        if (!$medicine) {
+            $this->setFlash('danger', 'Medicine not found.');
             $this->redirect('/medicines');
         }
 

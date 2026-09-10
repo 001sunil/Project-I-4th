@@ -56,7 +56,7 @@ class AuthController extends Controller
             $this->redirect('/dashboard');
         } else {
             \Core\Logger::warning('Failed login attempt', ['username' => $username]);
-            \Core\AuditLog::log('login_failed', 0, null, ['username' => $username]);
+            \Core\AuditLog::log('login_failed', null, null, ['username' => $username]);
             $this->setFlash('danger', 'Invalid username or password.');
             $this->redirect('/login');
         }

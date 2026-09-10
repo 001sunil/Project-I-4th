@@ -9,19 +9,19 @@ require __DIR__ . '/../layouts/header.php';
 <div class="cards">
     <div class="card">
         <h3>Total Medicines</h3>
-        <div class="number"><?php echo $totalMedicines; ?></div>
+        <div class="number"><?php echo (int) $totalMedicines; ?></div>
     </div>
     <div class="card warning">
         <h3>Low Stock Items</h3>
-        <div class="number"><?php echo $lowStockCount; ?></div>
+        <div class="number"><?php echo (int) $lowStockCount; ?></div>
     </div>
     <div class="card danger">
         <h3>Expiring Soon</h3>
-        <div class="number"><?php echo $expiringCount; ?></div>
+        <div class="number"><?php echo (int) $expiringCount; ?></div>
     </div>
     <div class="card success">
         <h3>Total Sales (Rs)</h3>
-        <div class="number"><?php echo number_format($totalSales, 2); ?></div>
+        <div class="number"><?php echo number_format((float) $totalSales, 2); ?></div>
     </div>
 </div>
 

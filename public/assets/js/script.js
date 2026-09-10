@@ -312,8 +312,8 @@ function validateAdjustmentForm() {
     }
 
     var qty = document.getElementById('quantity_change');
-    if (parseInt(qty.value) >= 0 || isNaN(parseInt(qty.value))) {
-        return showFieldError(qty, 'Please enter a valid negative quantity for stock reduction.');
+    if (parseInt(qty.value) === 0 || isNaN(parseInt(qty.value))) {
+        return showFieldError(qty, 'Please enter a valid quantity change (positive or negative, not zero).');
     }
 
     var reason = document.getElementById('reason');

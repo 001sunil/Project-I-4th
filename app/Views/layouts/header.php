@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediStock — Medicine Inventory</title>
+    <link rel="icon" type="image/svg+xml" href="<?php echo \Core\View::url('/favicon.svg'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="<?php echo \Core\View::url('/assets/css/style.css?v=7'); ?>">
 </head>
@@ -17,7 +18,7 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-brand">
-            <i class="fas fa-pills"></i> MediStock
+            <i class="fas fa-pills"></i>
         </div>
 
         <ul class="sidebar-menu">
@@ -27,7 +28,7 @@
             <li class="sidebar-section">Inventory</li>
             <li><a href="<?php echo \Core\View::url('/medicines'); ?>" class="<?php echo in_array(\Core\View::currentPage(), ['medicines']) ? 'active' : ''; ?>"><span class="icon"><i class="fas fa-capsules"></i></span> Medicines</a></li>
             <li><a href="<?php echo \Core\View::url('/medicines/create'); ?>" class="<?php echo \Core\View::currentPage() === 'create' && str_contains($_SERVER['REQUEST_URI'], 'medicines') ? 'active' : ''; ?>"><span class="icon"><i class="fas fa-plus-circle"></i></span> Add Medicine</a></li>
-            <li><a href="<?php echo \Core\View::url('/stock-adjustments'); ?>" class="<?php echo \Core\View::currentPage() === 'stock-adjustments' ? 'active' : ''; ?>"><span class="icon"><i class="fas fa-sliders-h"></i></span> Stock Adjustment</a></li>
+            <li><a href="<?php echo \Core\View::url('/stock-adjustments'); ?>" class="<?php echo str_contains($_SERVER['REQUEST_URI'], 'stock-adjustment') ? 'active' : ''; ?>"><span class="icon"><i class="fas fa-sliders-h"></i></span> Stock Adjustment</a></li>
 
             <li class="sidebar-section">Sales</li>
             <li><a href="<?php echo \Core\View::url('/sales/create'); ?>" class="<?php echo \Core\View::currentPage() === 'create' && str_contains($_SERVER['REQUEST_URI'], 'sales') ? 'active' : ''; ?>"><span class="icon"><i class="fas fa-shopping-cart"></i></span> New Sale</a></li>

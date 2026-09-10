@@ -34,7 +34,7 @@ require __DIR__ . '/../layouts/header.php';
                     <td><?php echo htmlspecialchars($sale['sale_date']); ?></td>
                     <td><?php echo htmlspecialchars($sale['doctor_name']); ?></td>
                     <td><?php echo htmlspecialchars($sale['nmc_number']); ?></td>
-                    <td><?php echo ucfirst($sale['license_type']); ?></td>
+                    <td><?php echo htmlspecialchars(ucfirst($sale['license_type'])); ?></td>
                     <td><?php echo htmlspecialchars($sale['hospital_name'] ?? '-'); ?></td>
                     <td><?php echo htmlspecialchars($sale['prescription_date']); ?></td>
                     <td><?php echo htmlspecialchars($sale['prescription_number'] ?? '-'); ?></td>

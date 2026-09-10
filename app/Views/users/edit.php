@@ -8,7 +8,7 @@ require __DIR__ . '/../layouts/header.php';
 <div class="form-container">
     <?php \Core\View::alert('danger', $error); ?>
 
-    <form method="POST" action="<?php echo \Core\View::url('/users/' . $user['id'] . '/update'); ?>" enctype="multipart/form-data">
+    <form method="POST" action="<?php echo \Core\View::url('/users/' . $user['id'] . '/update'); ?>" enctype="multipart/form-data" onsubmit="return validateUserForm();">
         <?php \Core\View::csrfField(); ?>
 
         <div class="form-group">
@@ -20,7 +20,7 @@ require __DIR__ . '/../layouts/header.php';
                     <img src="<?php echo $avatarUrl; ?>" alt="Avatar" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover;">
                 <?php else: ?>
                     <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 600;">
-                        <?php echo strtoupper(substr($user['full_name'], 0, 1)); ?>
+                        <?php echo htmlspecialchars(strtoupper(substr($user['full_name'], 0, 1))); ?>
                     </div>
                 <?php endif; ?>
                 <div>

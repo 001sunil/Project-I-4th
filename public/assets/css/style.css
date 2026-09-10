@@ -94,7 +94,7 @@ a { text-decoration: none; color: inherit; }
     .sidebar-toggle { display: flex; }
     .sidebar { transform: translateX(-100%); transition: transform var(--transition); }
     body.sidebar-open .sidebar { transform: translateX(0); }
-    body.sidebar-open ~ .sidebar-overlay { display: block; }
+    body.sidebar-open .sidebar-overlay { display: block; }
     .main-content { margin-left: 0; }
     .topbar { padding-left: 64px; }
 }
@@ -236,7 +236,7 @@ a { text-decoration: none; color: inherit; }
 .card.success::before { background: var(--success); }
 .card.success .number { color: var(--success); }
 
-.table-container { background: var(--surface); border-radius: var(--radius); padding: 0; box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden; }
+.table-container { background: var(--surface); border-radius: var(--radius); padding: 0; box-shadow: var(--shadow); border: 1px solid var(--border); overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: 14px 18px; text-align: left; font-size: 0.875rem; }
 th { background: var(--bg); font-weight: 600; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }

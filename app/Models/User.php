@@ -104,8 +104,21 @@ class User extends Model
     public function getAvatarUrl(?string $avatar): ?string
     {
         if ($avatar && file_exists(__DIR__ . '/../../uploads/avatars/' . $avatar)) {
-            return '/uploads/avatars/' . htmlspecialchars($avatar);
+            return '/uploads/avatars/' . $avatar;
         }
         return null;
+    }
+
+    /**
+     * Count users by role.
+     */
+    public function countByRole(string $role): int
+    {
+        $result = $this->db->fetchOne(
+            "SELECT COUNT(*) as cnt FROM users WHERE role = ? AND is_active = 1",
+            [$role],
+            's'
+        );
+        return (int) ($result['cnt'] ?? 0);
     }
 }

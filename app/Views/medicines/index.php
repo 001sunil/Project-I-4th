@@ -47,16 +47,16 @@ require __DIR__ . '/../layouts/header.php';
             <?php if (count($medicines) > 0): ?>
                 <?php foreach ($medicines as $med): ?>
                 <tr>
-                    <td><?php echo $med['id']; ?></td>
+                    <td><?php echo (int) $med['id']; ?></td>
                     <td><?php echo htmlspecialchars($med['name']); ?></td>
                     <td><?php echo htmlspecialchars($med['category_name']); ?></td>
                     <td><?php echo htmlspecialchars($med['batch_no']); ?></td>
                     <td><?php echo htmlspecialchars($med['expiry_date']); ?></td>
                     <td class="<?php echo $med['quantity'] < ($med['reorder_level'] ?? 10) ? 'stock-low' : ''; ?>">
-                        <?php echo $med['quantity']; ?>
+                        <?php echo (int) $med['quantity']; ?>
                     </td>
-                    <td><?php echo ucfirst($med['unit'] ?? 'piece'); ?></td>
-                    <td><?php echo number_format($med['price'], 2); ?></td>
+                    <td><?php echo htmlspecialchars(ucfirst($med['unit'] ?? 'piece')); ?></td>
+                    <td><?php echo number_format((float) $med['price'], 2); ?></td>
                     <td>
                         <?php if ($med['requires_prescription']): ?>
                             <span class="badge badge-required">Required</span>

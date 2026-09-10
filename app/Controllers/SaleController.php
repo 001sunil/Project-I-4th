@@ -71,6 +71,11 @@ class SaleController extends Controller
         $quantitySold = (int) $this->input('quantity_sold', 0);
         $paymentMethod = $this->input('payment_method', 'cash');
 
+        $allowedPaymentMethods = ['cash', 'card', 'digital', 'credit'];
+        if (!in_array($paymentMethod, $allowedPaymentMethods, true)) {
+            $paymentMethod = 'cash';
+        }
+
         $medicine = $this->medicineModel->find($medicineId);
         if (!$medicine) {
             $this->setFlash('danger', 'Medicine not found.');
@@ -90,7 +95,7 @@ class SaleController extends Controller
         $salePrice = $medicine['price'];
         $totalAmount = $quantitySold * $salePrice;
         $saleNumber = $this->saleModel->generateSaleNumber();
-        $userId = (int) ($_SESSION['user_id'] ?? null);
+        $userId = $_SESSION['user_id'] ?? null;
 
         $this->db->beginTransaction();
         try {
@@ -109,32 +114,40 @@ class SaleController extends Controller
                 throw new \RuntimeException('Failed to decrease stock. Insufficient quantity.');
             }
 
+            if ($medicine['requires_prescription']) {
+                $doctorName = trim($this->input('doctor_name', ''));
+                $nmcNumber = trim($this->input('nmc_number', ''));
+                $prescriptionDate = $this->input('prescription_date', '');
+                $prescriptionNumber = trim($this->input('prescription_number', ''));
+                $licenseType = $this->input('license_type', 'medical');
+                $hospitalName = trim($this->input('hospital_name', ''));
+
+                $allowedLicenseTypes = ['medical', 'dental', 'ayurveda', 'other'];
+                if (!in_array($licenseType, $allowedLicenseTypes, true)) {
+                    $licenseType = 'medical';
+                }
+
+                if (empty($doctorName) || empty($nmcNumber) || empty($prescriptionDate)) {
+                    \Core\Logger::warning('Prescription sale completed without required prescription details', ['sale_number' => $saleNumber]);
+                } else {
+                    $this->prescriptionModel->createDetail(
+                        $saleId,
+                        $doctorName,
+                        $nmcNumber,
+                        $prescriptionDate,
+                        $prescriptionNumber,
+                        $licenseType,
+                        $hospitalName
+                    );
+                }
+            }
+
             $this->db->commit();
         } catch (\Exception $e) {
             $this->db->rollBack();
-            $this->setFlash('danger', 'Failed to record sale: ' . $e->getMessage());
+            \Core\Logger::error('Sale creation failed: ' . $e->getMessage());
+            $this->setFlash('danger', 'Failed to record sale. Please try again.');
             $this->redirect('/sales/create');
-        }
-
-        if ($medicine['requires_prescription']) {
-            $doctorName = trim($this->input('doctor_name', ''));
-            $nmcNumber = trim($this->input('nmc_number', ''));
-            $prescriptionDate = $this->input('prescription_date', '');
-            $prescriptionNumber = trim($this->input('prescription_number', ''));
-            $licenseType = $this->input('license_type', 'medical');
-            $hospitalName = trim($this->input('hospital_name', ''));
-
-            if (!empty($doctorName) && !empty($nmcNumber) && !empty($prescriptionDate)) {
-                $this->prescriptionModel->createDetail(
-                    $saleId,
-                    $doctorName,
-                    $nmcNumber,
-                    $prescriptionDate,
-                    $prescriptionNumber,
-                    $licenseType,
-                    $hospitalName
-                );
-            }
         }
 
         \Core\Logger::info('Sale recorded', ['sale_number' => $saleNumber, 'total' => $totalAmount]);
@@ -150,7 +163,7 @@ class SaleController extends Controller
     {
         $sales = $this->saleModel->getFiltered('', 10000, 0);
 
-        header('Content-Type: text/csv');
+        header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="sales_export_' . date('Y-m-d') . '.csv"');
 
         $output = fopen('php://output', 'w');
@@ -159,7 +172,7 @@ class SaleController extends Controller
         foreach ($sales as $sale) {
             fputcsv($output, [
                 $sale['sale_number'],
-                $sale['medicine_name'],
+                self::sanitizeCsvValue($sale['medicine_name']),
                 $sale['quantity_sold'],
                 $sale['sale_price'],
                 $sale['total_amount'],
@@ -171,5 +184,17 @@ class SaleController extends Controller
 
         fclose($output);
         exit;
+    }
+
+    /**
+     * Sanitize a CSV value to prevent formula injection.
+     * Prefixes dangerous characters with a single quote to neutralize them.
+     */
+    private static function sanitizeCsvValue(string $value): string
+    {
+        if (in_array($value[0] ?? '', ['=', '+', '-', '@', "\t", "\r", "\n"], true)) {
+            $value = "'" . $value;
+        }
+        return $value;
     }
 }

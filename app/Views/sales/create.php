@@ -8,7 +8,7 @@ require __DIR__ . '/../layouts/header.php';
 <div class="form-container">
     <?php \Core\View::alert('danger', $error); ?>
 
-    <form method="POST" action="<?php echo \Core\View::url('/sales/store'); ?>">
+    <form method="POST" action="<?php echo \Core\View::url('/sales/store'); ?>" onsubmit="return validateSaleForm();">
         <?php \Core\View::csrfField(); ?>
 
         <div class="form-group">
@@ -16,11 +16,11 @@ require __DIR__ . '/../layouts/header.php';
             <select id="medicine_id" name="medicine_id" required onchange="onMedicineChange(this)">
                 <option value="">— Select Medicine —</option>
                 <?php foreach ($medicines as $med): ?>
-                    <option value="<?php echo $med['id']; ?>"
-                            data-price="<?php echo $med['price']; ?>"
-                            data-stock="<?php echo $med['quantity']; ?>"
-                            data-rx="<?php echo $med['requires_prescription']; ?>">
-                        <?php echo htmlspecialchars($med['name']); ?> (Stock: <?php echo $med['quantity']; ?>, Rs. <?php echo number_format($med['price'], 2); ?>)
+                    <option value="<?php echo (int) $med['id']; ?>"
+                            data-price="<?php echo (float) $med['price']; ?>"
+                            data-stock="<?php echo (int) $med['quantity']; ?>"
+                            data-rx="<?php echo (int) $med['requires_prescription']; ?>">
+                        <?php echo htmlspecialchars($med['name']); ?> (Stock: <?php echo (int) $med['quantity']; ?>, Rs. <?php echo number_format((float) $med['price'], 2); ?>)
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -45,10 +45,10 @@ require __DIR__ . '/../layouts/header.php';
             <h3 style="margin-bottom: 12px;">Prescription Details</h3>
 
             <label for="doctor_name">Doctor Name *</label>
-            <input type="text" id="doctor_name" name="doctor_name" placeholder="Dr. Name">
+            <input type="text" id="doctor_name" name="doctor_name" placeholder="Dr. Name" required>
 
             <label for="nmc_number">NMC Number *</label>
-            <input type="text" id="nmc_number" name="nmc_number" placeholder="NMC Registration No.">
+            <input type="text" id="nmc_number" name="nmc_number" placeholder="NMC Registration No." required>
 
             <label for="license_type">License Type</label>
             <select id="license_type" name="license_type">
@@ -62,7 +62,7 @@ require __DIR__ . '/../layouts/header.php';
             <input type="text" id="hospital_name" name="hospital_name" placeholder="Hospital or clinic name">
 
             <label for="prescription_date">Prescription Date *</label>
-            <input type="date" id="prescription_date" name="prescription_date">
+            <input type="date" id="prescription_date" name="prescription_date" required>
 
             <label for="prescription_number">Prescription Number</label>
             <input type="text" id="prescription_number" name="prescription_number" placeholder="Optional reference">

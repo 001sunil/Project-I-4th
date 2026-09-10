@@ -8,7 +8,7 @@ require __DIR__ . '/../layouts/header.php';
 <div class="form-container">
     <?php \Core\View::alert('danger', $error); ?>
 
-    <form method="POST" action="<?php echo \Core\View::url('/users/store'); ?>" enctype="multipart/form-data">
+    <form method="POST" action="<?php echo \Core\View::url('/users/store'); ?>" enctype="multipart/form-data" onsubmit="return validateUserForm();">
         <?php \Core\View::csrfField(); ?>
 
         <div class="form-group">

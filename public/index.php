@@ -5,6 +5,8 @@
 // ============================================================
 
 // PSR-4 Autoloader
+date_default_timezone_set('Asia/Kathmandu');
+
 spl_autoload_register(function (string $class) {
     $prefixes = [
         'App\\'         => __DIR__ . '/../app/',
@@ -92,6 +94,13 @@ header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none';");
+
+// HSTS only when serving over HTTPS
+if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
 
 // Base URL for all links and redirects (e.g., /medistock/public)
 define('BASE_URL', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'));

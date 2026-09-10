@@ -26,11 +26,11 @@ require __DIR__ . '/../layouts/header.php';
             <?php if (count($adjustments) > 0): ?>
                 <?php foreach ($adjustments as $adj): ?>
                 <tr>
-                    <td><?php echo $adj['id']; ?></td>
+                    <td><?php echo (int) $adj['id']; ?></td>
                     <td><?php echo htmlspecialchars($adj['medicine_name']); ?></td>
                     <td>
                         <strong style="color: <?php echo $adj['quantity_change'] < 0 ? 'var(--danger)' : 'var(--success)'; ?>">
-                            <?php echo $adj['quantity_change']; ?>
+                            <?php echo (int) $adj['quantity_change']; ?>
                         </strong>
                     </td>
                     <td><?php echo ucfirst(htmlspecialchars($adj['reason'])); ?></td>

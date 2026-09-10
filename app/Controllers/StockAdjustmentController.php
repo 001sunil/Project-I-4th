@@ -60,13 +60,18 @@ class StockAdjustmentController extends Controller
         $reason = $this->input('reason', 'other');
         $note = trim($this->input('note', ''));
 
+        $allowedReasons = ['damaged', 'expired', 'lost', 'returned', 'correction', 'other'];
+        if (!in_array($reason, $allowedReasons, true)) {
+            $reason = 'other';
+        }
+
         if ($medicineId <= 0) {
             $this->setFlash('danger', 'Please select a medicine.');
             $this->redirect('/stock-adjustments/create');
         }
 
-        if ($quantityChange >= 0) {
-            $this->setFlash('danger', 'Quantity must be a negative number for stock reduction.');
+        if ($quantityChange == 0) {
+            $this->setFlash('danger', 'Quantity change cannot be zero.');
             $this->redirect('/stock-adjustments/create');
         }
 
@@ -76,14 +81,14 @@ class StockAdjustmentController extends Controller
             $this->redirect('/stock-adjustments/create');
         }
 
-        if (abs($quantityChange) > $medicine['quantity']) {
+        if ($quantityChange < 0 && abs($quantityChange) > $medicine['quantity']) {
             $this->setFlash('danger', 'Adjustment exceeds available stock (' . $medicine['quantity'] . ').');
             $this->redirect('/stock-adjustments/create');
         }
 
         $this->db->beginTransaction();
         try {
-            $userId = (int) ($_SESSION['user_id'] ?? 0);
+            $userId = $_SESSION['user_id'] ?? null;
             $this->adjustmentModel->createAdjustment($medicineId, $quantityChange, $reason, $note, $userId);
 
             $stockUpdated = $this->medicineModel->adjustStock($medicineId, $quantityChange);
@@ -94,7 +99,8 @@ class StockAdjustmentController extends Controller
             $this->db->commit();
         } catch (\Exception $e) {
             $this->db->rollBack();
-            $this->setFlash('danger', 'Failed to record adjustment: ' . $e->getMessage());
+            \Core\Logger::error('Stock adjustment failed: ' . $e->getMessage());
+            $this->setFlash('danger', 'Failed to record adjustment. Please try again.');
             $this->redirect('/stock-adjustments/create');
         }
 

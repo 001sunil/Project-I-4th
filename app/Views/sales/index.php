@@ -42,7 +42,7 @@ require __DIR__ . '/../layouts/header.php';
                     <td><?php echo $sale['quantity_sold']; ?></td>
                     <td><?php echo number_format($sale['sale_price'], 2); ?></td>
                     <td><strong><?php echo number_format($sale['total_amount'], 2); ?></strong></td>
-                    <td><?php echo ucfirst($sale['payment_method']); ?></td>
+                    <td><?php echo htmlspecialchars(ucfirst($sale['payment_method'])); ?></td>
                     <td><?php echo htmlspecialchars($sale['sold_by'] ?? '-'); ?></td>
                     <td><?php echo htmlspecialchars($sale['sale_date']); ?></td>
                 </tr>

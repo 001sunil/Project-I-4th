@@ -12,7 +12,7 @@ class AuditLog
      */
     public static function log(
         string $action,
-        int $userId = 0,
+        ?int $userId = null,
         ?array $oldValues = null,
         ?array $newValues = null,
         string $entityType = '',
@@ -30,8 +30,8 @@ class AuditLog
             $userId,
             $entityType,
             $entityId,
-            $oldValues ? json_encode($oldValues) : null,
-            $newValues ? json_encode($newValues) : null,
+            $oldValues !== null ? json_encode($oldValues) : null,
+            $newValues !== null ? json_encode($newValues) : null,
             $ipAddress,
         ], 'sisisss');
     }

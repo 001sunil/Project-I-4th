@@ -24,7 +24,7 @@ require __DIR__ . '/../layouts/header.php';
     </div>
     <div class="detail-row">
         <strong>Stock:</strong>
-        <?php echo $medicine['quantity']; ?>
+        <?php echo (int) $medicine['quantity']; ?>
     </div>
     <div class="detail-row">
         <strong>Price:</strong>

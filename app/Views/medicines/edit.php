@@ -55,7 +55,7 @@ require __DIR__ . '/../layouts/header.php';
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
                 <label for="quantity">Quantity (Stock) *</label>
-                <input type="number" id="quantity" name="quantity" min="0" value="<?php echo $medicine['quantity']; ?>" required>
+                <input type="number" id="quantity" name="quantity" min="0" value="<?php echo (int) $medicine['quantity']; ?>" required>
             </div>
 
             <div class="form-group">
@@ -73,12 +73,12 @@ require __DIR__ . '/../layouts/header.php';
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
                 <label for="price">Selling Price (Rs) *</label>
-                <input type="number" id="price" name="price" step="0.01" min="0.01" value="<?php echo $medicine['price']; ?>" required>
+                <input type="number" id="price" name="price" step="0.01" min="0.01" value="<?php echo (float) $medicine['price']; ?>" required>
             </div>
 
             <div class="form-group">
                 <label for="reorder_level">Reorder Level</label>
-                <input type="number" id="reorder_level" name="reorder_level" min="0" value="<?php echo $medicine['reorder_level'] ?? 10; ?>">
+                <input type="number" id="reorder_level" name="reorder_level" min="0" value="<?php echo (int) ($medicine['reorder_level'] ?? 10); ?>">
                 <small>Alert when stock falls below this number.</small>
             </div>
         </div>

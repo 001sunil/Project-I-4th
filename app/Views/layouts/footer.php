@@ -5,6 +5,6 @@
         </footer>
     </div> <!-- .main-content -->
 
-    <script src="/assets/js/script.js?v=4"></script>
+    <script src="<?php echo \Core\View::url('/assets/js/script.js?v=4'); ?>"></script>
 </body>
 </html>

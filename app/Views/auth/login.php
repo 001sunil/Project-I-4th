@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — MediStock</title>
+    <link rel="icon" type="image/svg+xml" href="<?php echo \Core\View::url('/favicon.svg'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="<?php echo \Core\View::url('/assets/css/style.css?v=7'); ?>">
 </head>
@@ -12,7 +13,6 @@
         <div class="login-left">
             <div class="login-brand">
                 <div class="login-brand-icon"><i class="fas fa-pills"></i></div>
-                <h2>MediStock</h2>
                 <p>Medicine Inventory Management System</p>
             </div>
             <div class="login-features">

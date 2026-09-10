@@ -60,6 +60,26 @@ class UserController extends Controller
             $this->redirect('/users/create');
         }
 
+        if (strlen($username) > 50) {
+            $this->setFlash('danger', 'Username must be 50 characters or fewer.');
+            $this->redirect('/users/create');
+        }
+
+        if (!preg_match('/^[a-zA-Z]+$/', $username)) {
+            $this->setFlash('danger', 'Username must contain only letters (no numbers, spaces, or special characters).');
+            $this->redirect('/users/create');
+        }
+
+        if (strlen($fullName) > 100) {
+            $this->setFlash('danger', 'Full name must be 100 characters or fewer.');
+            $this->redirect('/users/create');
+        }
+
+        if (!preg_match('/^[a-zA-Z ]+$/', $fullName)) {
+            $this->setFlash('danger', 'Full name must contain only letters and spaces.');
+            $this->redirect('/users/create');
+        }
+
         if (strlen($password) < 6) {
             $this->setFlash('danger', 'Password must be at least 6 characters.');
             $this->redirect('/users/create');
@@ -128,6 +148,16 @@ class UserController extends Controller
             $this->redirect("/users/{$id}/edit");
         }
 
+        if (strlen($fullName) > 100) {
+            $this->setFlash('danger', 'Full name must be 100 characters or fewer.');
+            $this->redirect("/users/{$id}/edit");
+        }
+
+        if (!preg_match('/^[a-zA-Z ]+$/', $fullName)) {
+            $this->setFlash('danger', 'Full name must contain only letters and spaces.');
+            $this->redirect("/users/{$id}/edit");
+        }
+
         if (!empty($password) && strlen($password) < 6) {
             $this->setFlash('danger', 'Password must be at least 6 characters.');
             $this->redirect("/users/{$id}/edit");
@@ -183,6 +213,15 @@ class UserController extends Controller
         if ((int) $id === (int) $_SESSION['user_id']) {
             $this->setFlash('danger', 'You cannot delete your own account.');
             $this->redirect('/users');
+        }
+
+        $user = $this->userModel->find((int) $id);
+        if ($user && $user['role'] === 'admin') {
+            $adminCount = $this->userModel->countByRole('admin');
+            if ($adminCount <= 1) {
+                $this->setFlash('danger', 'Cannot delete the last admin account.');
+                $this->redirect('/users');
+            }
         }
 
         $user = $this->userModel->find((int) $id);

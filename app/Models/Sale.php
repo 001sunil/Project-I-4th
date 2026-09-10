@@ -34,7 +34,8 @@ class Sale extends Model
             $this->db->commit();
         } catch (\Exception $e) {
             $this->db->rollBack();
-            $nextNum = '0001';
+            // Use timestamp to avoid duplicate sale numbers on fallback
+            $nextNum = str_pad((int) date('is') % 10000, 4, '0', STR_PAD_LEFT);
         }
 
         return "{$prefix}-{$date}-{$nextNum}";

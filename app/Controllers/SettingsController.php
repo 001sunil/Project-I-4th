@@ -44,8 +44,8 @@ class SettingsController extends Controller
         $lowStockThreshold = (int) $this->input('low_stock_threshold', 10);
         $expiryAlertDays = (int) $this->input('expiry_alert_days', 30);
 
-        if ($lowStockThreshold < 0) $lowStockThreshold = 10;
-        if ($expiryAlertDays < 0) $expiryAlertDays = 30;
+        if ($lowStockThreshold < 0 || $lowStockThreshold > 10000) $lowStockThreshold = 10;
+        if ($expiryAlertDays < 1 || $expiryAlertDays > 365) $expiryAlertDays = 30;
 
         $this->settingModel->set('low_stock_threshold', (string) $lowStockThreshold);
         $this->settingModel->set('expiry_alert_days', (string) $expiryAlertDays);
