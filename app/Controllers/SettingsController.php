@@ -51,6 +51,7 @@ class SettingsController extends Controller
         $this->settingModel->set('expiry_alert_days', (string) $expiryAlertDays);
 
         \Core\Logger::info('Settings updated', ['low_stock' => $lowStockThreshold, 'expiry_days' => $expiryAlertDays]);
+        \Core\AuditLog::log('settings_updated', (int) ($_SESSION['user_id'] ?? 0), null, ['low_stock_threshold' => $lowStockThreshold, 'expiry_alert_days' => $expiryAlertDays]);
         $this->setFlash('success', 'Settings updated successfully!');
         $this->redirect('/settings');
     }

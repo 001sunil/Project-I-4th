@@ -66,10 +66,12 @@ class Logger
         $timestamp = date('Y-m-d H:i:s');
         $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
         $userId = $_SESSION['user_id'] ?? '-';
-        $contextStr = !empty($context) ? ' ' . json_encode($context) : '';
+        $contextStr = !empty($context) ? ' ' . (json_encode($context) ?: '[]') : '';
 
         $line = "[{$timestamp}] [{$level}] [IP:{$ip}] [User:{$userId}] {$message}{$contextStr}" . PHP_EOL;
 
-        @file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
+        if (is_dir(self::$logDir)) {
+            file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
+        }
     }
 }

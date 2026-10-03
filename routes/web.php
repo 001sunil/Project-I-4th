@@ -53,4 +53,4 @@ $router->get('/settings',           'SettingsController@index')->middleware('aut
 $router->post('/settings/update',   'SettingsController@update')->middleware('auth', 'admin');
 
 // ---- Avatars ----
-$router->get('/avatars/{filename}', 'AvatarController@show');
+$router->get('/avatars/{filename}', 'AvatarController@show')->middleware('auth');

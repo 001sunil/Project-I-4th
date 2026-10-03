@@ -27,12 +27,12 @@ class AuditLog
 
         $db->query($sql, [
             $action,
-            $userId,
+            $userId ?? 0,
             $entityType,
-            $entityId,
+            $entityId ?? 0,
             $oldValues !== null ? json_encode($oldValues) : null,
             $newValues !== null ? json_encode($newValues) : null,
             $ipAddress,
-        ], 'sisisss');
+        ], 'siissss');
     }
 }

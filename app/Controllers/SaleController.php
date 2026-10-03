@@ -128,7 +128,7 @@ class SaleController extends Controller
                 }
 
                 if (empty($doctorName) || empty($nmcNumber) || empty($prescriptionDate)) {
-                    \Core\Logger::warning('Prescription sale completed without required prescription details', ['sale_number' => $saleNumber]);
+                    throw new \RuntimeException('Prescription details are required for this medicine.');
                 } else {
                     $this->prescriptionModel->createDetail(
                         $saleId,

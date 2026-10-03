@@ -51,3 +51,11 @@ apache_error_log
 .cache/
 *.bak
 *.tmp
+
+# =====================
+# Docs / Diagrams (not pushed)
+# =====================
+*.png
+*.docx
+*.pptx
+learn/

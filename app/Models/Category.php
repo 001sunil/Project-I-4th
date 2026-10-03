@@ -7,19 +7,19 @@ use Core\Model;
 class Category extends Model
 {
     protected string $table = 'categories';
+    private static ?array $staticCache = null;
 
     /**
      * Get all active categories ordered by sort_order then name (cached).
      */
     public function getAll(): array
     {
-        static $cache = null;
-        if ($cache === null) {
-            $cache = $this->db->fetchAll(
+        if (self::$staticCache === null) {
+            self::$staticCache = $this->db->fetchAll(
                 "SELECT * FROM categories WHERE is_active = 1 ORDER BY sort_order ASC, name ASC"
             );
         }
-        return $cache;
+        return self::$staticCache;
     }
 
     /**
@@ -27,14 +27,19 @@ class Category extends Model
      */
     public function getNameById(int $id): string
     {
-        static $map = null;
-        if ($map === null) {
-            $rows = $this->getAll();
-            $map = [];
-            foreach ($rows as $row) {
-                $map[$row['id']] = $row['name'];
-            }
+        $rows = $this->getAll();
+        $map = [];
+        foreach ($rows as $row) {
+            $map[$row['id']] = $row['name'];
         }
         return $map[$id] ?? 'Unknown';
+    }
+
+    /**
+     * Invalidate the static cache (call after create/update/delete).
+     */
+    public static function invalidateCache(): void
+    {
+        self::$staticCache = null;
     }
 }

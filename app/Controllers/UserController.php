@@ -225,8 +225,13 @@ class UserController extends Controller
         }
 
         $user = $this->userModel->find((int) $id);
+        if (!$user) {
+            $this->setFlash('danger', 'User not found.');
+            $this->redirect('/users');
+        }
+
         if ($user && !empty($user['avatar'])) {
-            $avatarPath = __DIR__ . '/../../uploads/avatars/' . $user['avatar'];
+            $avatarPath = __DIR__ . '/../../uploads/avatars/' . basename($user['avatar']);
             if (file_exists($avatarPath)) {
                 unlink($avatarPath);
             }
@@ -252,7 +257,7 @@ class UserController extends Controller
 
         if ($file['size'] > 2 * 1024 * 1024) {
             $this->setFlash('danger', 'Avatar must be less than 2MB.');
-            $this->redirect($_SERVER['REQUEST_URI']);
+            $this->redirect('/users');
         }
 
         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -262,7 +267,7 @@ class UserController extends Controller
 
         if (!in_array($mime, $allowedTypes)) {
             $this->setFlash('danger', 'Avatar must be a JPG, PNG, or GIF image.');
-            $this->redirect($_SERVER['REQUEST_URI']);
+            $this->redirect('/users');
         }
 
         $ext = match($mime) {

@@ -43,9 +43,10 @@ abstract class Model
         if (!empty($conditions)) {
             $where = [];
             foreach ($conditions as $column => $value) {
+                $column = preg_replace('/[^a-zA-Z0-9_]/', '', $column);
                 $where[] = "`{$column}` = ?";
                 $params[] = $value;
-                $types .= is_int($value) ? 'i' : 's';
+                $types .= $this->buildType($value);
             }
             $sql .= ' WHERE ' . implode(' AND ', $where);
         }
@@ -69,7 +70,12 @@ abstract class Model
      */
     public function create(array $data): int
     {
-        $columns = implode(', ', array_map(fn($col) => "`{$col}`", array_keys($data)));
+        if (empty($data)) {
+            throw new \InvalidArgumentException("Cannot create record with empty data.");
+        }
+
+        $sanitizedKeys = array_map(fn($col) => preg_replace('/[^a-zA-Z0-9_]/', '', $col), array_keys($data));
+        $columns = implode(', ', array_map(fn($col) => "`{$col}`", $sanitizedKeys));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
         $types = $this->buildTypes($data);
 
@@ -84,7 +90,12 @@ abstract class Model
      */
     public function update(int $id, array $data): bool
     {
-        $set = implode(', ', array_map(fn($col) => "`{$col}` = ?", array_keys($data)));
+        if (empty($data)) {
+            return false;
+        }
+
+        $sanitizedKeys = array_map(fn($col) => preg_replace('/[^a-zA-Z0-9_]/', '', $col), array_keys($data));
+        $set = implode(', ', array_map(fn($col) => "`{$col}` = ?", $sanitizedKeys));
         $types = $this->buildTypes($data);
         $types .= 'i'; // for the ID
 
@@ -117,9 +128,10 @@ abstract class Model
         if (!empty($conditions)) {
             $where = [];
             foreach ($conditions as $column => $value) {
+                $column = preg_replace('/[^a-zA-Z0-9_]/', '', $column);
                 $where[] = "`{$column}` = ?";
                 $params[] = $value;
-                $types .= is_int($value) ? 'i' : 's';
+                $types .= $this->buildType($value);
             }
             $sql .= ' WHERE ' . implode(' AND ', $where);
         }
@@ -142,18 +154,24 @@ abstract class Model
     {
         $types = '';
         foreach ($data as $value) {
-            if (is_int($value)) {
-                $types .= 'i';
-            } elseif (is_float($value)) {
-                $types .= 'd';
-            } elseif (is_bool($value)) {
-                $types .= 'i';
-            } elseif ($value === null) {
-                $types .= 's';
-            } else {
-                $types .= 's';
-            }
+            $types .= $this->buildType($value);
         }
         return $types;
+    }
+
+    /**
+     * Build a single type character for bind_param.
+     */
+    private function buildType(mixed $value): string
+    {
+        if (is_int($value)) {
+            return 'i';
+        } elseif (is_float($value)) {
+            return 'd';
+        } elseif (is_bool($value)) {
+            return 'i';
+        } else {
+            return 's';
+        }
     }
 }

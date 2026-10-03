@@ -186,7 +186,6 @@ class MedicineController extends Controller
         $supplierId = (int) $this->input('supplier_id', 0);
         $batchNo = trim($this->input('batch_no', ''));
         $expiryDate = $this->input('expiry_date', '');
-        $quantity = (int) $this->input('quantity', 0);
         $price = (float) $this->input('price', 0);
         $requiresPrescription = $this->input('requires_prescription') ? 1 : 0;
         $unit = trim($this->input('unit', 'piece'));
@@ -199,11 +198,6 @@ class MedicineController extends Controller
 
         if ($categoryId <= 0 || $supplierId <= 0) {
             $this->setFlash('danger', 'Please select a valid category and supplier.');
-            $this->redirect("/medicines/{$id}/edit");
-        }
-
-        if ($quantity < 0) {
-            $this->setFlash('danger', 'Quantity cannot be negative.');
             $this->redirect("/medicines/{$id}/edit");
         }
 
@@ -233,12 +227,11 @@ class MedicineController extends Controller
             'supplier_id'             => $supplierId,
             'batch_no'                => $batchNo,
             'expiry_date'             => $expiryDate,
-            'quantity'                => $quantity,
             'unit'                    => $unit,
             'price'                   => $price,
             'requires_prescription'   => $requiresPrescription,
             'reorder_level'           => $reorderLevel,
-            'updated_by'              => $_SESSION['user_id'] ?? null,
+            'updated_by'              => $_SESSION['user_id'] ?? 0,
         ]);
 
         $this->setFlash('success', 'Medicine updated successfully!');

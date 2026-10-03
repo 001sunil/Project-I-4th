@@ -49,11 +49,12 @@ class User extends Model
                 [$user['id']],
                 'i'
             );
-            return $user;
+            // Return fresh user data instead of stale array
+            return $this->findByUsername($username);
         }
 
         // Increment login attempts
-        $attempts = $user['login_attempts'] + 1;
+        $attempts = ($user['login_attempts'] ?? 0) + 1;
         $lockUntil = $attempts >= 5 ? date('Y-m-d H:i:s', strtotime('+15 minutes')) : null;
 
         $this->db->query(
@@ -70,6 +71,9 @@ class User extends Model
      */
     public function createUser(array $data): int
     {
+        if (empty($data['password'])) {
+            throw new \InvalidArgumentException("Password is required.");
+        }
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         return $this->create($data);
     }
@@ -103,8 +107,13 @@ class User extends Model
      */
     public function getAvatarUrl(?string $avatar): ?string
     {
-        if ($avatar && file_exists(__DIR__ . '/../../uploads/avatars/' . $avatar)) {
-            return '/uploads/avatars/' . $avatar;
+        if ($avatar) {
+            // Sanitize filename to prevent path traversal
+            $safeName = basename($avatar);
+            $path = __DIR__ . '/../../uploads/avatars/' . $safeName;
+            if (file_exists($path)) {
+                return '/uploads/avatars/' . $safeName;
+            }
         }
         return null;
     }

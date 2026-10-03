@@ -21,7 +21,17 @@ abstract class Controller
     protected function view(string $view, array $data = []): void
     {
         extract($data, EXTR_PREFIX_ALL, '_viewData');
-        $viewPath = __DIR__ . '/../app/Views/' . str_replace('.', '/', $view) . '.php';
+
+        // Sanitize view path to prevent directory traversal
+        $sanitized = preg_replace('/[^a-zA-Z0-9_\/]/', '', $view);
+        $viewPath = __DIR__ . '/../app/Views/' . str_replace('.', '/', $sanitized) . '.php';
+
+        // Verify resolved path is still within Views directory
+        $realViewsDir = realpath(__DIR__ . '/../app/Views');
+        $realViewPath = realpath(dirname($viewPath)) . '/' . basename($viewPath);
+        if ($realViewsDir === false || strpos($realViewPath, $realViewsDir) !== 0) {
+            throw new \RuntimeException("Invalid view path.");
+        }
 
         if (!file_exists($viewPath)) {
             throw new \RuntimeException("View [{$view}] not found.");
@@ -33,7 +43,8 @@ abstract class Controller
 
         // Check if the view specifies a layout
         if (isset($_viewData_layout)) {
-            $layoutPath = __DIR__ . '/../app/Views/layouts/' . $_viewData_layout . '.php';
+            $sanitizedLayout = preg_replace('/[^a-zA-Z0-9_]/', '', $_viewData_layout);
+            $layoutPath = __DIR__ . '/../app/Views/layouts/' . $sanitizedLayout . '.php';
             if (!file_exists($layoutPath)) {
                 throw new \RuntimeException("Layout [{$_viewData_layout}] not found.");
             }
@@ -97,7 +108,7 @@ abstract class Controller
      */
     protected function isPost(): bool
     {
-        return $_SERVER['REQUEST_METHOD'] === 'POST';
+        return ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST';
     }
 
     /**

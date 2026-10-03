@@ -225,10 +225,10 @@ a { text-decoration: none; color: inherit; }
     overflow: hidden;
 }
 .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--primary); opacity: 0; transition: opacity var(--transition); }
-.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.card:hover { transform: translateY(-2px); box-shadow:black; }
 .card:hover::before { opacity: 1; }
 .card h3 { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-.card .number { font-size: 2rem; font-weight: 700; color: var(--primary); letter-spacing: -0.03em; }
+.card .number { font-size: 2rem; font-weight: 700; color: rgb(15, 2, 2); letter-spacing: -0.03em; }
 .card.warning::before { background: var(--warning); }
 .card.warning .number { color: var(--warning); }
 .card.danger::before { background: var(--danger); }

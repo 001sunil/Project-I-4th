@@ -46,6 +46,9 @@ class AuthController extends Controller
         if ($user) {
             session_regenerate_id(true);
 
+            // Regenerate CSRF token after login
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
             $_SESSION['user_id']  = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['full_name'] = $user['full_name'];

@@ -17,7 +17,7 @@ require __DIR__ . '/../layouts/header.php';
                 <?php
                 $avatarUrl = (new \App\Models\User())->getAvatarUrl($user['avatar'] ?? null);
                 if ($avatarUrl): ?>
-                    <img src="<?php echo $avatarUrl; ?>" alt="Avatar" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover;">
+                    <img src="<?php echo htmlspecialchars($avatarUrl); ?>" alt="Avatar" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover;">
                 <?php else: ?>
                     <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 600;">
                         <?php echo htmlspecialchars(strtoupper(substr($user['full_name'], 0, 1))); ?>

@@ -97,9 +97,10 @@ class Database
     public function fetchAll(string $sql, array $params = [], string $types = ''): array
     {
         $result = $this->query($sql, $params, $types);
-        return ($result && $result->num_rows > 0)
-            ? $result->fetch_all(\MYSQLI_ASSOC)
-            : [];
+        if ($result instanceof \mysqli_result && $result->num_rows > 0) {
+            return $result->fetch_all(\MYSQLI_ASSOC);
+        }
+        return [];
     }
 
     /**
@@ -108,9 +109,10 @@ class Database
     public function fetchOne(string $sql, array $params = [], string $types = ''): ?array
     {
         $result = $this->query($sql, $params, $types);
-        return ($result && $result->num_rows > 0)
-            ? $result->fetch_assoc()
-            : null;
+        if ($result instanceof \mysqli_result && $result->num_rows > 0) {
+            return $result->fetch_assoc();
+        }
+        return null;
     }
 
     /**

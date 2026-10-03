@@ -63,7 +63,7 @@
             }
             ?>
             <?php if ($sidebarAvatar): ?>
-                <img src="<?php echo $sidebarAvatar; ?>" alt="Avatar" class="user-avatar-img">
+                <img src="<?php echo htmlspecialchars($sidebarAvatar); ?>" alt="Avatar" class="user-avatar-img">
             <?php else: ?>
                 <div class="user-avatar"><?php echo strtoupper(htmlspecialchars(substr($_SESSION['full_name'] ?? 'U', 0, 1))); ?></div>
             <?php endif; ?>

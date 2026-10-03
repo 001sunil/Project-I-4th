@@ -34,8 +34,8 @@ class Medicine extends Model
 
         $sql = "SELECT m.*, c.name AS category_name, s.name AS supplier_name
                 FROM medicines m
-                JOIN categories c ON m.category_id = c.id
-                JOIN suppliers s ON m.supplier_id = s.id
+                LEFT JOIN categories c ON m.category_id = c.id
+                LEFT JOIN suppliers s ON m.supplier_id = s.id
                 {$whereClause}
                 ORDER BY m.created_at DESC
                 LIMIT ? OFFSET ?";
@@ -73,8 +73,8 @@ class Medicine extends Model
 
         $sql = "SELECT COUNT(*) AS total
                 FROM medicines m
-                JOIN categories c ON m.category_id = c.id
-                JOIN suppliers s ON m.supplier_id = s.id
+                LEFT JOIN categories c ON m.category_id = c.id
+                LEFT JOIN suppliers s ON m.supplier_id = s.id
                 {$whereClause}";
 
         return $this->db->count($sql, $params, $types);
@@ -88,8 +88,8 @@ class Medicine extends Model
         return $this->db->fetchOne(
             "SELECT m.*, c.name AS category_name, s.name AS supplier_name
              FROM medicines m
-             JOIN categories c ON m.category_id = c.id
-             JOIN suppliers s ON m.supplier_id = s.id
+             LEFT JOIN categories c ON m.category_id = c.id
+             LEFT JOIN suppliers s ON m.supplier_id = s.id
              WHERE m.id = ?",
             [$id],
             'i'
@@ -104,7 +104,7 @@ class Medicine extends Model
         return $this->db->fetchAll(
             "SELECT c.name AS category, SUM(m.quantity) AS total_stock
              FROM medicines m
-             JOIN categories c ON m.category_id = c.id
+             LEFT JOIN categories c ON m.category_id = c.id
              WHERE m.is_active = 1
              GROUP BY c.name"
         );
@@ -142,7 +142,7 @@ class Medicine extends Model
         return $this->db->fetchAll(
             "SELECT m.*, c.name AS category_name
              FROM medicines m
-             JOIN categories c ON m.category_id = c.id
+             LEFT JOIN categories c ON m.category_id = c.id
              WHERE m.is_active = 1 AND m.quantity < m.reorder_level AND m.reorder_level > 0
              ORDER BY (m.quantity / m.reorder_level) ASC"
         );
@@ -157,7 +157,7 @@ class Medicine extends Model
             "SELECT m.*, c.name AS category_name,
                     DATEDIFF(m.expiry_date, CURDATE()) AS days_remaining
              FROM medicines m
-             JOIN categories c ON m.category_id = c.id
+             LEFT JOIN categories c ON m.category_id = c.id
              WHERE m.is_active = 1 AND DATEDIFF(m.expiry_date, CURDATE()) <= ?
              ORDER BY m.expiry_date ASC",
             [$days],

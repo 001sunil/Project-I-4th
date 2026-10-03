@@ -142,7 +142,11 @@ class Router
      */
     private function callHandler(string $handler, array $params): void
     {
-        [$controllerClass, $method] = explode('@', $handler);
+        if (!str_contains($handler, '@')) {
+            throw new \RuntimeException("Invalid handler format: '{$handler}'. Expected 'Controller@method'.");
+        }
+
+        [$controllerClass, $method] = explode('@', $handler, 2);
 
         $class = 'App\\Controllers\\' . $controllerClass;
 
